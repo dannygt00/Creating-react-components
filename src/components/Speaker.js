@@ -1,3 +1,7 @@
+import react, { useState } from "react"
+import { useContext } from "react/cjs/react.production.min"
+import { SpeakerFilterContext } from '../contexts/SpeakerFilterContext'
+
 function Session({ title, room }) {
     return (
         <span className="session w-100">
@@ -28,14 +32,26 @@ function SpeakerImage({ id, first, last }) {
 }
 
 function SpeakerFavorite({ favorite, onFavoriteToggle }) {
+    const [inTransition, setInTransition] = useState(false);
+    function doneCallBack() {
+        setInTransition(false)
+        console.log(`In SpeakerFavorite:doneCallBack ${new Date().getMilliseconds}`)
+    }
+
     return (
         <div className="action padB1">
             <span
-                onClick={onFavoriteToggle}>
+                onClick={function () {
+                    setInTransition(true)
+                    return onFavoriteToggle(doneCallBack);
+                }}>
                 <i className={
                     favorite === true ?
                         "fa fa-star orange" : "fa fa-star-o orange"} />{" "}
                 Favorite{" "}
+                {inTransition ? (
+                    <span className="fas fa-circle-notch fa-spin"></span>
+                ) : null}
             </span>
         </div>
     )
@@ -78,8 +94,9 @@ function SpeakerDemographics({
     )
 }
 
-function Speaker({ speaker, showSessions, onFavoriteToggle }) {
+function Speaker({ speaker, onFavoriteToggle }) {
     const { id, first, last, sessions } = speaker;
+    const { showSessions } = useContext(SpeakerFilterContext);
     return (
         <div className="col-xs-12 col-sm-12 col-md-6 col-lg-4 col-sm-12 col-xs-12">
             <div className="card card-height p-4 mt-4">
