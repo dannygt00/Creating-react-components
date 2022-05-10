@@ -1,16 +1,14 @@
-import react, { useState } from "react"
-import { useContext } from "react/cjs/react.production.min"
-import { SpeakerFilterContext } from '../contexts/SpeakerFilterContext'
-import { SpeakerProvider, SpeakerContext } from '../contexts/SpeakerContext'
-import SpeakerDelete from './SpeakerDelete'
+import React, { useState, useContext } from "react";
+import { SpeakerFilterContext } from "../contexts/SpeakerFilterContext";
+import { SpeakerProvider, SpeakerContext } from "../contexts/SpeakerContext";
+import SpeakerDelete from "./SpeakerDelete";
 
 function Session({ title, room }) {
     return (
         <span className="session w-100">
             {title} <strong>Room: {room.name}</strong>
         </span>
-
-    )
+    );
 }
 
 function Sessions() {
@@ -34,51 +32,75 @@ function Sessions() {
     );
 }
 
+function ImageWithFallback({ src, ...props }) {
+    const [error, setError] = useState(false);
+    const [imgSrc, setImgSrc] = useState(src);
+
+    function onError() {
+        if (!error) {
+            setImgSrc("/images/speaker-99999.jpg");
+            setError(true);
+        }
+    }
+
+    return <img src={imgSrc} {...props} onError={onError} />;
+}
 
 function SpeakerImage() {
-    const { speaker: { id, first, last } } = useContext(SpeakerContext);
+    const {
+        speaker: { id, first, last },
+    } = useContext(SpeakerContext);
     return (
         <div className="speaker-img d-flex flex-row justify-content-center align-items-center h-300">
-            <img
+            <ImageWithFallback
                 className="contain-fit"
                 src={`/images/speaker-${id}.jpg`}
                 width="300"
                 alt={`${first} ${last}`}
             />
         </div>
-    )
+    );
 }
+
 
 function SpeakerFavorite() {
     const { speaker, updateRecord } = useContext(SpeakerContext);
     const [inTransition, setInTransition] = useState(false);
-    function doneCallBack() {
-        setInTransition(false)
-        console.log(`In SpeakerFavorite:doneCallBack ${new Date().getMilliseconds}`)
+    function doneCallback() {
+        setInTransition(false);
+        console.log(
+            `In SpeakerFavorite:doneCallback    ${new Date().getMilliseconds()}`
+        );
     }
 
     return (
         <div className="action padB1">
             <span
                 onClick={function () {
-                    setInTransition(true)
+                    setInTransition(true);
                     updateRecord(
                         {
-                            ...speaker, favorite: !speaker.favorite
+                            ...speaker,
+                            favorite: !speaker.favorite,
                         },
-                        doneCallBack
-                    )
-                }}>
-                <i className={
-                    speaker.favorite === true ?
-                        "fa fa-star orange" : "fa fa-star-o orange"} />{" "}
+                        doneCallback
+                    );
+                }}
+            >
+                <i
+                    className={
+                        speaker.favorite === true
+                            ? "fa fa-star orange"
+                            : "fa fa-star-o orange"
+                    }
+                />{" "}
                 Favorite{" "}
                 {inTransition ? (
                     <span className="fas fa-circle-notch fa-spin"></span>
                 ) : null}
             </span>
         </div>
-    )
+    );
 }
 
 function SpeakerDemographics() {
@@ -93,9 +115,7 @@ function SpeakerDemographics() {
             </div>
             <SpeakerFavorite />
             <div>
-                <p className="card-description">
-                    {bio}
-                </p>
+                <p className="card-description">{bio}</p>
                 <div className="social d-flex flex-row mt-4">
                     <div className="company">
                         <h5>Company</h5>
@@ -108,13 +128,18 @@ function SpeakerDemographics() {
                 </div>
             </div>
         </div>
-    )
+    );
 }
 
 function Speaker({ speaker, updateRecord, insertRecord, deleteRecord }) {
     const { showSessions } = useContext(SpeakerFilterContext);
     return (
-        <SpeakerContext speaker={speaker} updateRecord={updateRecord} insertRecord={insertRecord} deleteRecord={deleteRecord} >
+        <SpeakerProvider
+            speaker={speaker}
+            updateRecord={updateRecord}
+            insertRecord={insertRecord}
+            deleteRecord={deleteRecord}
+        >
             <div className="col-xs-12 col-sm-12 col-md-6 col-lg-4 col-sm-12 col-xs-12">
                 <div className="card card-height p-4 mt-4">
                     <SpeakerImage />
@@ -123,8 +148,8 @@ function Speaker({ speaker, updateRecord, insertRecord, deleteRecord }) {
                 {showSessions === true ? <Sessions /> : null}
                 <SpeakerDelete />
             </div>
-        </SpeakerContext>
+        </SpeakerProvider>
     );
 }
 
-export default Speaker
+export default Speaker;

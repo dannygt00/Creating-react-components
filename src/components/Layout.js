@@ -1,19 +1,16 @@
-import react, { creatContext } from "react";
-import { ThemeContext, ThemeProvider } from "./contexts/ThemeContext";
-
-export const ThemeContext = creatContext();
+import React, { useContext } from "react";
+import { ThemeContext, ThemeProvider } from "../contexts/ThemeContext";
 
 function Layout({ startingTheme, children }) {
     return (
         <ThemeProvider startingTheme={startingTheme}>
             <LayoutNoThemeProvider>{children}</LayoutNoThemeProvider>
         </ThemeProvider>
-    )
+    );
 }
 
-function LayoutNoThemeProvider(startingTheme, children) {
-
-    const [theme, setTheme] = useState(startingTheme);
+function LayoutNoThemeProvider({ children }) {
+    const { theme } = useContext(ThemeContext);
 
     return (
         <div
@@ -23,7 +20,7 @@ function LayoutNoThemeProvider(startingTheme, children) {
         >
             {children}
         </div>
-    )
+    );
 }
 
 export default Layout;
